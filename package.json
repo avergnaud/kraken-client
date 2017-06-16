@@ -1,0 +1,27 @@
+{
+  "name": "kraken-client",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "babel-node --presets es2015 client.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "description": "Kraken client",
+  "author": "AV",
+  "contributors": [
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "querystring": ">=0.2.0",
+    "request": ">=2.27.0"
+  },
+  "devDependencies": {
+    "babel-cli":"6.24.1",
+    "babel-preset-es2015":"6.24.1",
+    "web3": "0.14.0"
+  },
+  "main": "client.js",
+  "engines": {
+    "node": ">=0.10"
+  },
+  "readmeFilename": "README.md"
+}
