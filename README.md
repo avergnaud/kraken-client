@@ -1,1 +1,1 @@
-npm link ../npm-kraken-api
+api javascript avec des promises
