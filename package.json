@@ -2,7 +2,7 @@
   "name": "kraken-client",
   "version": "0.0.1",
   "scripts": {
-    "start": "babel-node --presets es2015 client.js",
+    "start": "babel-node --presets es2015 bot.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "description": "Kraken client",
@@ -19,7 +19,7 @@
     "babel-preset-es2015":"6.24.1",
     "web3": "0.14.0"
   },
-  "main": "client.js",
+  "main": "bot.js",
   "engines": {
     "node": ">=0.10"
   },
