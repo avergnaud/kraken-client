@@ -1,7 +1,7 @@
 let config = {
     url: 'https://api.kraken.com',
     version: '0',
-    key: '',
+    key: 'toto',
     secret: '',
     otp: null,
     timeoutMS: 30000
