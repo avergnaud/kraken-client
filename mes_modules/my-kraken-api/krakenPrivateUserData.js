@@ -1,6 +1,6 @@
 let request = require('request');
-var crypto		= require('crypto');
-var querystring	= require('querystring');
+let crypto = require('crypto');
+let querystring	= require('querystring');
 let krakenConfig = require('./krakenConfig')
 
 let config = krakenConfig.config;
