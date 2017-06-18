@@ -4,7 +4,6 @@ let state = require('./mes_modules/botState');
 let cron = require('cron');
 let krakenPublicMarketData = require('./mes_modules/my-kraken-api/krakenPublicMarketData');
 let krakenPrivateUserData = require('./mes_modules/my-kraken-api/krakenPrivateUserData');
-var prompt = require('prompt');
 
 /*
 Attention : https://www.kraken.com/help/fees
@@ -30,23 +29,15 @@ krakenPublicMarketData.postRequest('Ticker', {
         state.ownsETH = soldeETH > soldeEURConvertiEnETH;
         let bullishBearish = state.ownsETH ? 'bearish' : 'bullish';
 
-        console.log("Please confirm bot state: {ownsETH=" + state.ownsETH + "} which means you might be " + bullishBearish + " (ok/ko)");
-        prompt.start();
-        prompt.get('answer', function(err, result) {
+        console.log("Bot state: {ownsETH=" + state.ownsETH + "} which means you might be " + bullishBearish);
 
-            if ('ok' === result.answer) {
+        /* run now */
+        runBot();
 
-                /* run now */
-                runBot();
-
-                /* and then every 10 minutes */
-                let cronJob = cron.job("0 */2 * * * *", runBot);
-                cronJob.start()
-                console.log('cronJob started');
-            } else {
-                console.log('position not expected - stopping');
-            }
-        });
+        /* and then every 10 minutes */
+        let cronJob = cron.job("0 */10 * * * *", runBot);
+        cronJob.start()
+        console.log('cronJob started');
 
     }, function(error) {
         console.log('error [krakenPrivateUserData.postRequest(Balance) ' + error);
