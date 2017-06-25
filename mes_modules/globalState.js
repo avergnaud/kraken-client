@@ -8,7 +8,7 @@ const QUOTE_CURRENCY = 'ZEUR';
 
 let pairInfo;
 let balance;
-let dernierTradeValeurETHenEUR;
+let botLastTradePrice;
 let exchangeLastPrice;
 
 module.exports.VOL = VOL;
@@ -17,5 +17,5 @@ module.exports.BASE_CURRENCY = BASE_CURRENCY;
 module.exports.QUOTE_CURRENCY = QUOTE_CURRENCY;
 module.exports.pairInfo = pairInfo;
 module.exports.balance = balance;
-module.exports.dernierTradeValeurETHenEUR = dernierTradeValeurETHenEUR;
+module.exports.botLastTradePrice = botLastTradePrice;
 module.exports.exchangeLastPrice = exchangeLastPrice;

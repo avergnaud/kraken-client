@@ -22,9 +22,9 @@ let etudieAchat = function() {
                   {"error":[],"result":{"descr":{"order":"sell 0.35123729 ETHEUR @ market"},"txid":["OMTCOD-MFPQB-AOOCT7"]}}
                   {"error":["EOrder:Insufficient funds"]} */
                 if (orderResult.error.length == 0) {
-                    state.dernierTradeValeurETHenEUR = parseFloat(state.pairInfo.c[0]);
+                    state.botLastTradePrice = parseFloat(state.pairInfo.c[0]);
                 }
-                console.log(JSON.stringify(orderResult) + ' @market price: ' + state.dernierTradeValeurETHenEUR);
+                console.log(JSON.stringify(orderResult) + ' @market price: ' + state.botLastTradePrice);
             })
             .catch(rejected => console.log('promise rejected: ' + rejected));
     }
@@ -33,7 +33,7 @@ let etudieAchat = function() {
 /* on veut acheter si le prix a baissé de state.VOL */
 function goAchat() {
 
-    let dernierTradeMoinsVol = state.dernierTradeValeurETHenEUR *(1 - state.VOL);
+    let dernierTradeMoinsVol = state.botLastTradePrice *(1 - state.VOL);
     let retour = state.exchangeLastPrice <= dernierTradeMoinsVol;
 
     console.log('Dernier trade - ' + state.VOL + '% = ' + dernierTradeMoinsVol);

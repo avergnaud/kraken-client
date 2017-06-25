@@ -21,16 +21,16 @@ function run() {
 
             state.pairInfo = tickerPairResponseBody.result[state.DEVISES];
             state.exchangeLastPrice = parseFloat(state.pairInfo.c[0]);
-            if (typeof state.dernierTradeValeurETHenEUR == 'undefined') {
-                /* 1er appel uniquement initial state : dernierTradeValeurETHenEUR = moyenne2jours */
+            if (typeof state.botLastTradePrice == 'undefined') {
+                /* 1er appel uniquement initial state : botLastTradePrice = moyenne2jours */
                 let moyenne2jours = (parseFloat(state.pairInfo.p[0]) + parseFloat(state.pairInfo.p[1])) / 2;
-                state.dernierTradeValeurETHenEUR = moyenne2jours;
+                state.botLastTradePrice = moyenne2jours;
             }
             return krakenPrivateUserData.postRequest('Balance', null);
         })
         /* Décision : envisager un achat ou une vente */
         .then(function(balance) {
-          
+
             state.balance = balance;
             let fondsEnEUR = parseFloat(balance.result[state.QUOTE_CURRENCY]);
             let exchangeLastPrice = parseFloat(state.pairInfo.c[0]);
@@ -41,9 +41,9 @@ function run() {
             console.log(fondsEnEUR + '€ (' + soldeEURConvertiEnCrypto + state.BASE_CURRENCY + ') | ' + soldeCrypto + state.BASE_CURRENCY);
 
             if (soldeCrypto > soldeEURConvertiEnCrypto) {
-                state.dernierTradeValeurETHenEUR = vendeur.etudieVente();
+                state.botLastTradePrice = vendeur.etudieVente();
             } else {
-                state.dernierTradeValeurETHenEUR = acheteur.etudieAchat();
+                state.botLastTradePrice = acheteur.etudieAchat();
             }
         })
         .catch(rejected => console.log(rejected + ' call failure'));

@@ -20,9 +20,9 @@ let etudieVente = function() {
             /* 2. order result */
             .then(function(orderResult) {
                 if (orderResult.error.length == 0) {
-                    state.dernierTradeValeurETHenEUR = parseFloat(state.pairInfo.c[0]);
+                    state.botLastTradePrice = parseFloat(state.pairInfo.c[0]);
                 }
-                console.log(JSON.stringify(orderResult) + ' @market price: ' + state.dernierTradeValeurETHenEUR);
+                console.log(JSON.stringify(orderResult) + ' @market price: ' + state.botLastTradePrice);
             })
             .catch(rejected => console.log('promise rejected: ' + rejected));
     }
@@ -31,7 +31,7 @@ let etudieVente = function() {
 /* on veut vendre si le prix a monté de state.VOL */
 function goVente() {
 
-    let dernierTradePlusVol = state.dernierTradeValeurETHenEUR + state.VOL * state.dernierTradeValeurETHenEUR;
+    let dernierTradePlusVol = state.botLastTradePrice + state.VOL * state.botLastTradePrice;
     let retour = state.exchangeLastPrice >= dernierTradePlusVol;
 
     console.log('Dernier trade + ' + state.VOL + '% = ' + dernierTradePlusVol);
