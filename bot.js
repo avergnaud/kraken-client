@@ -1,65 +1,50 @@
-let bullishTrader = require('./mes_modules/bullishTrader');
-let bearishTrader = require('./mes_modules/bearishTrader');
-let state = require('./mes_modules/botState');
+let acheteur = require('./mes_modules/acheteur');
+let vendeur = require('./mes_modules/vendeur');
 let cron = require('cron');
+let state = require('./mes_modules/globalState')
 let krakenPublicMarketData = require('./mes_modules/my-kraken-api/krakenPublicMarketData');
 let krakenPrivateUserData = require('./mes_modules/my-kraken-api/krakenPrivateUserData');
 
-/*
-Attention : https://www.kraken.com/help/fees
-*/
+// run();
 
-krakenPublicMarketData.postRequest('Ticker', {
-        'pair': state.DEVISES
-    })
-    .then(function(tickerPairResponseBody) {
-        let pairInfo = tickerPairResponseBody.result[state.DEVISES];
-        state.coursETHenEUR = parseFloat(pairInfo.c[0]);
-        return krakenPrivateUserData.postRequest('Balance', null);
-    }, function(error) {
-        console.log('error [krakenPublicMarketData.postRequest(Ticker pair)] ' + error);
-    })
-    .then(function(userBalance) {
-        let fondsEnEUR = parseFloat(userBalance.result['ZEUR']);
-        let soldeEURConvertiEnETH = fondsEnEUR / state.coursETHenEUR;
-        let soldeETH = parseFloat(userBalance.result['XETH']);
+let cronJob = cron.job("0 */2 * * * *", run);
+cronJob.start();
+console.log('cronJob started');
 
-        console.log('you have ' + fondsEnEUR + '€ (' + soldeEURConvertiEnETH + 'ETH) and ' + soldeETH + ' ETH');
+function run() {
+    /* 1. Récupération des informations sur les state.DEVISES */
+    krakenPublicMarketData.postRequest('Ticker', {
+            'pair': state.DEVISES
+        })
+        /* 2. Récupération du solde */
+        .then(function(tickerPairResponseBody) {
 
-        state.ownsETH = soldeETH > soldeEURConvertiEnETH;
-        let bullishBearish = state.ownsETH ? 'bearish' : 'bullish';
+            state.pairInfo = tickerPairResponseBody.result[state.DEVISES];
+            state.exchangeLastPrice = parseFloat(state.pairInfo.c[0]);
+            if (typeof state.dernierTradeValeurETHenEUR == 'undefined') {
+                /* 1er appel uniquement initial state : dernierTradeValeurETHenEUR = moyenne2jours */
+                let moyenne2jours = (parseFloat(state.pairInfo.p[0]) + parseFloat(state.pairInfo.p[1])) / 2;
+                state.dernierTradeValeurETHenEUR = moyenne2jours;
+            }
+            return krakenPrivateUserData.postRequest('Balance', null);
+        })
+        /* Décision : envisager un achat ou une vente */
+        .then(function(balance) {
+          
+            state.balance = balance;
+            let fondsEnEUR = parseFloat(balance.result[state.QUOTE_CURRENCY]);
+            let exchangeLastPrice = parseFloat(state.pairInfo.c[0]);
+            let soldeEURConvertiEnCrypto = fondsEnEUR / exchangeLastPrice;
+            let soldeCrypto = parseFloat(balance.result[state.BASE_CURRENCY]);
 
-        console.log("Bot state: {ownsETH=" + state.ownsETH + "} which means you might be " + bullishBearish);
+            console.log('--------------------------------------------------------------');
+            console.log(fondsEnEUR + '€ (' + soldeEURConvertiEnCrypto + state.BASE_CURRENCY + ') | ' + soldeCrypto + state.BASE_CURRENCY);
 
-        /* run now */
-        runBot();
-
-        /* and then every 10 minutes */
-        let cronJob = cron.job("0 */10 * * * *", runBot);
-        cronJob.start()
-        console.log('cronJob started');
-
-    }, function(error) {
-        console.log('error [krakenPrivateUserData.postRequest(Balance) ' + error);
-    });
-
-
-let orderResult;
-
-function runBot() {
-    if (state.ownsETH) {
-        orderResult = bearishTrader.etudieVente();
-    } else {
-        orderResult = bullishTrader.etudieAchat();
-    }
-    if (typeof orderResult != 'undefined') {
-        console.log('orderResult ' + orderResult);
-    }
+            if (soldeCrypto > soldeEURConvertiEnCrypto) {
+                state.dernierTradeValeurETHenEUR = vendeur.etudieVente();
+            } else {
+                state.dernierTradeValeurETHenEUR = acheteur.etudieAchat();
+            }
+        })
+        .catch(rejected => console.log(rejected + ' call failure'));
 }
-
-/*
-TODO régression linéaire...
-https://stackoverflow.com/questions/6195335/linear-regression-in-javascript
-http://mathworld.wolfram.com/LeastSquaresFitting.html
-https://dracoblue.net/dev/linear-least-squares-in-javascript/
-*/

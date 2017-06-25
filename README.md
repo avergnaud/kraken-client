@@ -1,1 +1,3 @@
-api javascript avec des promises
+sudo npm install
+
+npm start
